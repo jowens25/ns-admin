@@ -453,3 +453,14 @@ func TargetIsSender(target string, conn *dbus.Conn, sender dbus.Sender) (bool, e
 	return targetUser.Uid == sendingUser.Uid, nil
 
 }
+
+func TargetIsRoot(target string) (bool, error) {
+
+	targetUser, err := user.Lookup(target)
+
+	if err != nil {
+		return false, err
+	}
+
+	return targetUser.Uid == "0", nil
+}

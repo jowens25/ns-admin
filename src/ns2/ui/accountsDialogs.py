@@ -115,7 +115,8 @@ async def editDeleteUserDialog(username):
                     )
                     if rsp.error_name is not None:
                         ui.notify(rsp.body[0])
-                    ui.notify(f"Deleted {username}", type="warning")
+                    else:
+                        ui.notify(f"Deleted {username}", type="warning")
 
                 with ui.row():
                     ui.button("save", on_click=on_save_cb).props("flat")

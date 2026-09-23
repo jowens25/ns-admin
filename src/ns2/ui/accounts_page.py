@@ -109,7 +109,7 @@ async def accounts_table():
 
         if username == activeUser:
             dialog.open()
-        if callerIsAdmin:
+        elif callerIsAdmin:
             dialog.open()
         else:
             ui.notify(f"not allowed to edit {username}'s password")

@@ -205,7 +205,21 @@ func (a *AccountInterface) Remove(sender dbus.Sender, message dbus.Message, user
 			Name: "org.freedesktop.DBus.Error",
 			Body: []any{err.Error()},
 		}
+	}
 
+	isRoot, err := TargetIsRoot(username)
+	if err != nil {
+		return "", &dbus.Error{
+			Name: "org.freedesktop.DBus.Error",
+			Body: []any{err.Error()},
+		}
+	}
+
+	if isRoot {
+		return "", &dbus.Error{
+			Name: "org.freedesktop.DBus.Error",
+			Body: []any{"cannot delete root account"},
+		}
 	}
 
 	if isSender {
