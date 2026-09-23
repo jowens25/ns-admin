@@ -3,6 +3,7 @@ import asyncio
 from dbus_next import Message
 from dbus_next.constants import BusType
 from dbus_next.aio import MessageBus
+from dbus_next.errors import InvalidBusNameError
 from ns2.utils import log
 
 # app bus is a dbus connection over tcp via localhost:3000 called a bridge
@@ -130,6 +131,15 @@ async def BridgeCall(
 
         err = Message.new_error(
             msg, error_name=interface, error_text="no bridge response"
+        )
+        log.info(msg)
+        log.info(err.interface)
+        log.info(err.member)
+        return err
+    
+    except InvalidBusNameError as e:
+        err = Message.new_error(
+            msg, error_name=interface, error_text="missing serivce?"
         )
         log.info(msg)
         log.info(err.interface)

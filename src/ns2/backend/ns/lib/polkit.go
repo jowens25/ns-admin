@@ -59,7 +59,14 @@ func CheckAuthorization(sender dbus.Sender, actionId string) bool {
 		fmt.Printf("make dbus call error: %s\n", err.Error())
 	}
 
-	fmt.Println("NORMAL RETURN")
+	//fmt.Println("NORMAL RETURN")
+
+	u, err := GetUserInfoFromSender(conn, sender)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	fmt.Println("Sender: ", u.Name)
 
 	fmt.Println(result)
 

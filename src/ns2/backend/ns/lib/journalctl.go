@@ -24,7 +24,7 @@ type JournalEntry struct {
 // journalctl -u "identifier"
 
 func FetchLogs(since string, priority int, units []string) ([]string, error) {
-	args := []string{"-o", "json"}
+	args := []string{"-r", "-o", "json"}
 
 	args = append(args, "--since", since, "--until", "now")
 

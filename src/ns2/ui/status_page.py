@@ -455,7 +455,7 @@ def ProcessStrings(string: str):
 async def read_socket():
     writer = None
     try:
-        log.info("opening serial.sock")
+        log.debug("opening serial.sock")
         reader, writer = await asyncio.open_unix_connection("/var/lib/ns/serial.sock")
         #reader, writer = await asyncio.open_connection(host="10.1.10.201", port="8080")
         while True:
@@ -465,14 +465,14 @@ async def read_socket():
             ProcessStrings(data.decode("utf-8", errors="ignore"))
 
     except FileNotFoundError:
-        log.info("File Not Found Error: Serial socket not found.")
-        pass
-    except asyncio.CancelledError:
-        log.info("asyncio.CancelledError - read_socket cancelled")
+        log.debug("File Not Found Error: Serial socket not found.")
+        raise
+    except ConnectionRefusedError:
+        log.debug("ConnectionRefused Error - read_socket")
         pass
     except Exception as e:
-        log.info(e)
-        pass
+        log.debug(f"general exception: {e}")
+        raise
 
     finally:
 
@@ -482,8 +482,8 @@ async def read_socket():
                 await writer.wait_closed()
                 writer = None
 
-            log.info("cleaned up writer")
-        log.info("cleaned up serial socket task")
+            log.debug("cleaned up writer")
+        log.debug("cleaned up serial socket task")
 
 
 SerialTask = None
@@ -495,7 +495,8 @@ async def root_status_page():
 
     await controlPanel()
 
-    if SerialTask and SerialTask is not SerialTask.done():
+    # init page load, if reading task, cancel and start one.
+    if SerialTask and not SerialTask.done():
         SerialTask.cancel()
 
     SerialTask = asyncio.create_task(read_socket())
@@ -513,7 +514,7 @@ async def root_status_page():
             string6Map, "visible"
         )
         statBytes = ui.tab("Status Bytes").bind_visibility_from(string7Map, "visible")
-    with ui.tab_panels(tabs, value=ch1).classes("w-full"):
+    with ui.tab_panels(tabs, value=statBytes).classes("w-full"):
 
         with ui.tab_panel(ch1):
             StringViewer("Channels 1-8", string2Map)
@@ -533,7 +534,7 @@ async def root_status_page():
     def serial_connect_cb():
         global SerialTask
         if SerialTask is None or SerialTask.done():
-            log.info("created new reader")
+            #log.info("created new reader")
             SerialTask = asyncio.create_task(read_socket())
 
     ui.timer(2.0, serial_connect_cb)

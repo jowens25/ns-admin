@@ -7,8 +7,14 @@ case "$1" in
     configure)
 
 
+        
+        # making ns-admin and ns-user groups
         getent group nsadmin >/dev/null 2>&1 || groupadd nsadmin
         getent group nsuser  >/dev/null 2>&1 || groupadd nsuser
+
+        # allow root user to flow through polkit stuff
+        usermod -aG nsadmin root
+        usermod -aG nsuser root
 
         firewall-cmd --permanent --zone=public --add-service=ssh 2>/dev/null || true
         firewall-cmd --permanent --zone=public --add-service=snmptrap 2>/dev/null || true

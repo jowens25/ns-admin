@@ -4,10 +4,10 @@ from ns2.utils import ASSETS_DIR
 from ns2.lib.bridge import BusCall, CallPamAuthenticate
 from ns2.lib.bridge import SetupBridge, CleanupBridge
 from ns2.utils import log
-
+import time
 
 async def logout_cb():
-    app.storage.general.update({"activeUser": None, "activeId": None})
+    app.storage.general.update({"activeUser": None, "activeId": None, "ts":0})
     await CleanupBridge()
     ui.navigate.reload()
     ui.navigate.to("/login")
@@ -35,7 +35,7 @@ async def try_login(_username: str, _password: str) -> None:
             log.info("browser error")
             return
         log.info("try login general store updated")
-        app.storage.general.update({"activeUser": activeUser, "activeId": bid})
+        app.storage.general.update({"activeUser": activeUser, "activeId": bid, "ts": time.monotonic()})
 
         print(activeUser)
         print(bid)

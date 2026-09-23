@@ -1,4 +1,5 @@
 from importlib.metadata import version
+import time
 
 from nicegui import app, ui
 
@@ -10,21 +11,29 @@ from ns2.ui.theme import init_colors
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+session_duration_seconds = 24 * 60 * 60 # 1 day
 
 async def bridge_check():
     # log.info("bridge check")
     b = GetBridge()
     if b is None:
-        app.storage.general.update({"activeUser": None, "activeId": None})
+        app.storage.general.update({"activeUser": None, "activeId": None, "ts":0})
         ui.navigate.reload()
 
 
 async def check_auth():
     # log.info("check auth")
     bid = app.storage.browser.get("id", None)
+    ts = app.storage.general.get("ts", None)
     # log.info(bid)
     if bid is None:
         log.info("bid error")
+        ui.navigate.to("/login")
+        return
+    
+    if time.monotonic() >= ts + session_duration_seconds and ts != 0:
+        log.info("session expired 60 seconds ")
+        app.storage.general.update({"activeUser": None, "activeId": None, "ts":0})
         ui.navigate.to("/login")
         return
 
@@ -38,6 +47,9 @@ async def check_auth():
         log.info("active id != bid")
         ui.navigate.to("/login")
         return
+    
+    
+
 
 
 @ui.refreshable

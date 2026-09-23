@@ -189,14 +189,16 @@ def MakeServicesDict(servs):
 
 @ui.page("/system")
 async def system_page():
-
+    
     await controlPanel()
+    
+    #await fetch_logs_cb()
 
-    ui.label("Services").classes("text-h5")
+    #ui.label("Services").classes("text-h5")
 
-    serviceTable = await serviceSelectionTable()
+    #serviceTable = await serviceSelectionTable()
 
-    ui.separator()
+    #ui.separator()
     ui.label("Logs").classes("text-h5")
 
     with ui.row().classes("items-end gap-4 w-full flex-wrap"):
@@ -204,7 +206,7 @@ async def system_page():
         sinceSelector = (
             ui.select(
                 options=list(SINCE_OPTIONS.keys()),
-                value="1 hour ago",
+                value="24 hours ago",
                 label="Since",
             )
             .classes("w-40")
@@ -214,7 +216,7 @@ async def system_page():
         prioritySelector = (
             ui.select(
                 options=list(PRIORITY_OPTIONS.keys()),
-                value="Info (6)",
+                value="Debug (7)",
                 label="Priority",
             )
             .classes("w-40")
@@ -225,11 +227,18 @@ async def system_page():
         ui.button("Download", on_click=lambda: download_logs_cb()).props("dense flat")
 
     uilog = ui.log().classes("w-full h-96").props("dense")
+    
+    logs = await GetLogs(SINCE_OPTIONS["24 hours ago"], PRIORITY_OPTIONS["Debug (7)"], [s["Name"] for s in MakeServicesDict(Units)])
+    
+    
+    for log in logs:
+        uilog.push(log)
+    
 
     async def GatherLogs():
         since = SINCE_OPTIONS[sinceSelector.value]
         priority = PRIORITY_OPTIONS[prioritySelector.value]
-        selected_units = [s["Name"] for s in serviceTable.selected]
+        selected_units = [s["Name"] for s in MakeServicesDict(Units)]
 
         return await GetLogs(since, priority, selected_units)
 

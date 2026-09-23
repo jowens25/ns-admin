@@ -1,6 +1,6 @@
 [project]
 name = "ns2"
-version = "2.0.36"
+version = "2.0.40"
 description = "ns2 is collection of tools to support Novus Power Products"
 readme = "README.md"
 requires-python = ">=3.12.3"

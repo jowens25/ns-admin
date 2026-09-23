@@ -22,6 +22,7 @@ from ns2.lib.systemd1 import isActive
 from ns2.ui.system_page import LoadSystemUnits
 from ns2.ui.firewalld_page import LoadFirewalldServiceInfo
 
+
 unrestricted_page_routes = {
     "/login",
     "/favicon.ico",
@@ -56,14 +57,13 @@ async def auth_middleware(request: Request, call_next):
 
 production = True
 
-
 async def LoadStatic():
     active = await isActive("firewalld.service")
     if active["state"]:
         await LoadFirewalldServiceInfo()
     await LoadSystemUnits()
     await LoadTimeZones()
-    app.storage.general.update({"activeUser": None, "activeId": None})
+    app.storage.general.update({"activeUser": None, "activeId": None, "ts":0})
 
 
 # app.on_startup(LoadStatic)
@@ -86,12 +86,11 @@ def main():
 
 if __name__ == "__main__" and production:
     main()
-# else:
-
-#     ui.run(
-#         port=8000,
-#         reload=True,
-#         storage_secret="your-secret-key",
-#         title="Novus Configuration Tool",
-#         favicon=str(ASSETS_DIR / "favicon.png"),
-#     )
+else:
+     ui.run(
+         port=8000,
+         reload=True,
+         storage_secret="your-secret-key",
+         title="Novus Configuration Tool",
+         favicon=str(ASSETS_DIR / "favicon.png"),
+     )
